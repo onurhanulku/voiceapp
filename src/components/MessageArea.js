@@ -4,6 +4,15 @@ const MessageArea = ({ messages, selectedChannel, setMessages, currentUser }) =>
   const [newMessage, setNewMessage] = useState('');
   const [socket, setSocket] = useState(null);
   const socketRef = useRef(null);
+  const messagesEndRef = useRef(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   useEffect(() => {
     const ws = new WebSocket('ws://31.210.36.25:5000');
@@ -69,6 +78,7 @@ const MessageArea = ({ messages, selectedChannel, setMessages, currentUser }) =>
             <span className="timestamp" style={{ float: 'right' }}>{msg.timestamp}</span>
           </div>
         ))}
+        <div ref={messagesEndRef} />
       </div>
       <input 
         className='m-input'
