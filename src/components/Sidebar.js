@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import '../App.css'; // CSS dosyasını import ediyoruz
 
 const Sidebar = ({ channels, onChannelClick, currentUser }) => {
   const [connectedUsers, setConnectedUsers] = useState([]);
@@ -45,10 +46,11 @@ const Sidebar = ({ channels, onChannelClick, currentUser }) => {
           </li>
         ))}
       </ul>
-      <h3>Bağlı Kullanıcılar</h3>
+      <h3 className="mt-4">Bağlı Kullanıcılar</h3>
       <ul className="list-group">
         {connectedUsers.map((user, index) => (
-          <li key={index} className="list-group-item bg-secondary text-white">
+          <li key={index} className="list-group-item bg-secondary text-white d-flex align-items-center">
+            <span className="online-indicator mt-1 mr-2"></span>
             {user}
           </li>
         ))}

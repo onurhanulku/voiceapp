@@ -84,3 +84,11 @@ body, html {
   color: gray; /* Renk */
   margin-left: 5px; /* Mesajdan biraz boşluk */
 }
+.online-indicator {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  background-color: #2ecc71;
+  border-radius: 50%;
+  margin-right: 5px;
+}
