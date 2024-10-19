@@ -49,11 +49,8 @@ const Sidebar = ({ channels, onChannelClick }) => {
       </ul>
       <h3>Bağlı Kullanıcılar</h3>
       <ul className="list-group">
-        {connectedUsers.map((user, index) => (
-          <li key={index} className="list-group-item bg-secondary text-white">
-            {user}
-          </li>
-        ))}
+          <li  className="list-group-item bg-secondary text-white">Kullanici 1</li>
+          <li  className="list-group-item bg-secondary text-white">Kullanici 2</li>
       </ul>
     </div>
   );
