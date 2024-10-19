@@ -14,6 +14,9 @@ const Login = ({ onLogin }) => {
         password,
       });
       onLogin(username);
+      
+      // WebSocket bağlantısını Login bileşeninden kaldırıyoruz
+      // Bunun yerine, Sidebar bileşeninde bağlantı kuracağız
     } catch (err) {
       setError('Geçersiz kullanıcı adı veya şifre.');
     }

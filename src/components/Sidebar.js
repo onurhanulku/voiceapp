@@ -1,37 +1,35 @@
 import React, { useEffect, useState } from 'react';
 
-const Sidebar = ({ channels, onChannelClick }) => {
+const Sidebar = ({ channels, onChannelClick, currentUser }) => {
   const [connectedUsers, setConnectedUsers] = useState([]);
 
   useEffect(() => {
-    const ws = new WebSocket('ws://31.210.36.25:5000'); // WebSocket sunucu adresi
-
-    ws.onmessage = (event) => {
-      console.log('Gelen veri:', event.data);
-
-      // Gelen veriyi JSON formatında ayrıştır
-      try {
-        const data = JSON.parse(event.data);
-        if (data.type === 'userList') {
-          setConnectedUsers(data.users); // Kullanıcıları güncelle
-        }
-      } catch (error) {
-        console.error('Veri ayrıştırma hatası:', error);
-      }
-    };
+    const ws = new WebSocket('ws://31.210.36.25:5000');
 
     ws.onopen = () => {
       console.log('WebSocket bağlantısı açıldı.');
+      ws.send(JSON.stringify({ type: 'login', username: currentUser }));
+    };
+
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === 'userList') {
+          setConnectedUsers(data.users);
+        }
+      } catch (error) {
+        console.error("JSON ayrıştırma hatası:", error);
+      }
     };
 
     ws.onerror = (error) => {
-      console.error('WebSocket hatası:', error);
+      console.error("WebSocket hatası:", error);
     };
 
     return () => {
-      ws.close(); // Bileşen kapatıldığında WebSocket bağlantısını kapat
+      ws.close();
     };
-  }, []);
+  }, [currentUser]);
 
   return (
     <div className="sidebar p-3 bg-dark text-white">
@@ -49,8 +47,11 @@ const Sidebar = ({ channels, onChannelClick }) => {
       </ul>
       <h3>Bağlı Kullanıcılar</h3>
       <ul className="list-group">
-          <li  className="list-group-item bg-secondary text-white">Kullanici 1</li>
-          <li  className="list-group-item bg-secondary text-white">Kullanici 2</li>
+        {connectedUsers.map((user, index) => (
+          <li key={index} className="list-group-item bg-secondary text-white">
+            {user}
+          </li>
+        ))}
       </ul>
     </div>
   );

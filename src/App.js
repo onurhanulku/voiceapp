@@ -8,14 +8,13 @@ import './App.css';
 const App = () => {
   const [channels] = useState(['Kanal 1', 'Kanal 2', 'Kanal 3']);
   const [selectedChannel, setSelectedChannel] = useState(channels[0]);
-  const [messages, setMessages] = useState([]); // Mesajlar burada saklanacak
+  const [messages, setMessages] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [currentUser, setCurrentUser] = useState(''); // Kullanıcı adını saklamak için yeni state
-  
+  const [currentUser, setCurrentUser] = useState('');
 
   const handleLogin = (username) => {
     console.log(`Giriş yapıldı: ${username}`);
-    setCurrentUser(username); // Kullanıcı adını kaydet
+    setCurrentUser(username);
     setIsLoggedIn(true);
   };
 
@@ -37,14 +36,18 @@ const App = () => {
       ) : (
         <>
           <div className="col-md-4">
-            <Sidebar channels={channels} onChannelClick={handleChannelClick} />
+            <Sidebar 
+              channels={channels} 
+              onChannelClick={handleChannelClick} 
+              currentUser={currentUser}
+            />
           </div>
           <div className="col-md-8">
             <MessageArea 
               messages={messages.filter(msg => msg.channel === selectedChannel)} 
               selectedChannel={selectedChannel} 
               setMessages={setMessages} 
-              currentUser={currentUser} // Kullanıcı adını MessageArea'ya geçir
+              currentUser={currentUser}
             />
           </div>
         </>

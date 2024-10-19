@@ -1,40 +1,29 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 const MessageArea = ({ messages, selectedChannel, setMessages, currentUser }) => {
   const [newMessage, setNewMessage] = useState('');
   const [socket, setSocket] = useState(null);
+  const socketRef = useRef(null);
 
   useEffect(() => {
-    const ws = new WebSocket('ws://31.210.36.25:5000'); // WebSocket sunucu adresi
-
-    ws.onmessage = async (event) => {
-      console.log('Gelen veri:', event.data);
-      
-      // Eğer gelen veri bir Blob ise, onu metin formatına dönüştür
-      if (event.data instanceof Blob) {
-        const text = await event.data.text();
-        console.log('Blob verisi:', text); // Blob verisini kontrol et
-        try {
-          const msg = JSON.parse(text);
-          setMessages((prevMessages) => [...prevMessages, msg]);
-        } catch (error) {
-          console.error("Mesaj ayrıştırma hatası:", error);
-        }
-      } else if (typeof event.data === 'string') {
-        console.log('String verisi:', event.data); // String verisini kontrol et
-        try {
-          const msg = JSON.parse(event.data);
-          setMessages((prevMessages) => [...prevMessages, msg]);
-        } catch (error) {
-          console.error("Mesaj ayrıştırma hatası:", error);
-        }
-      } else {
-        console.error("Gelen veri JSON formatında değil.");
-      }
-    };
+    const ws = new WebSocket('ws://31.210.36.25:5000');
 
     ws.onopen = () => {
       console.log('WebSocket bağlantısı açıldı.');
+      ws.send(JSON.stringify({ type: 'login', username: currentUser }));
+    };
+
+    ws.onmessage = (event) => {
+      console.log('Gelen veri:', event.data);
+      
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === 'message') {
+          setMessages(prevMessages => [...prevMessages, data]);
+        }
+      } catch (error) {
+        console.error("Mesaj ayrıştırma hatası:", error);
+      }
     };
 
     ws.onerror = (error) => {
@@ -42,24 +31,26 @@ const MessageArea = ({ messages, selectedChannel, setMessages, currentUser }) =>
     };
 
     setSocket(ws);
+    socketRef.current = ws;
 
     return () => {
-      ws.close(); // Bileşen kapatıldığında WebSocket bağlantısını kapat
+      ws.close();
     };
-  }, []);
+  }, [currentUser, setMessages]);
 
   const handleSendMessage = () => {
-    if (newMessage && socket && socket.readyState === WebSocket.OPEN) {
-      const timestamp = new Date().toLocaleTimeString(); // Sadece saat bilgisini al
+    if (newMessage && socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+      const timestamp = new Date().toLocaleTimeString();
       const message = { 
+        type: 'message',
         channel: selectedChannel, 
         text: newMessage, 
         username: currentUser, 
-        timestamp // Saat bilgisini ekle
-      }; 
+        timestamp
+      };
       try {
-        socket.send(JSON.stringify(message)); // Mesaj gönder
-        setNewMessage(''); // Mesaj kutusunu temizle
+        socketRef.current.send(JSON.stringify(message));
+        setNewMessage('');
       } catch (error) {
         console.error('Mesaj gönderme hatası:', error);
       }
@@ -72,7 +63,7 @@ const MessageArea = ({ messages, selectedChannel, setMessages, currentUser }) =>
     <div className="message-area">
       <h2>{selectedChannel}</h2>
       <div className="messages">
-        {messages.map((msg, index) => (
+        {messages.filter(msg => msg.channel === selectedChannel).map((msg, index) => (
           <div key={index} className="message">
             <span>{msg.username}: {msg.text}</span>
             <span className="timestamp" style={{ float: 'right' }}>{msg.timestamp}</span>
@@ -80,17 +71,17 @@ const MessageArea = ({ messages, selectedChannel, setMessages, currentUser }) =>
         ))}
       </div>
       <input 
-  className='m-input'
-  type="text" 
-  value={newMessage} 
-  onChange={(e) => setNewMessage(e.target.value)} 
-  onKeyPress={(e) => {
-    if (e.key === 'Enter') {
-      handleSendMessage();
-    }
-  }} 
-  placeholder="Mesaj yaz..." 
-/>
+        className='m-input'
+        type="text" 
+        value={newMessage} 
+        onChange={(e) => setNewMessage(e.target.value)} 
+        onKeyPress={(e) => {
+          if (e.key === 'Enter') {
+            handleSendMessage();
+          }
+        }} 
+        placeholder="Mesaj yaz..." 
+      />
       <button className='submit' onClick={handleSendMessage}>Gönder</button>
     </div>
   );
