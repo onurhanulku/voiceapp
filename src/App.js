@@ -23,35 +23,38 @@ const App = () => {
   };
 
   return (
-    <div className="row">
-      {!isLoggedIn ? (
-        <>
-          <div className="col-md-4 d-flex align-items-center justify-content-center">
-            <Login onLogin={handleLogin} />
-          </div>
-          <div className="col-md-8 d-flex align-items-center justify-content-center">
-            <Register />
-          </div>
-        </>
-      ) : (
-        <>
-          <div className="col-md-4">
-            <Sidebar 
-              channels={channels} 
-              onChannelClick={handleChannelClick} 
-              currentUser={currentUser}
-            />
-          </div>
-          <div className="col-md-8">
-            <MessageArea 
-              messages={messages.filter(msg => msg.channel === selectedChannel)} 
-              selectedChannel={selectedChannel} 
-              setMessages={setMessages} 
-              currentUser={currentUser}
-            />
-          </div>
-        </>
-      )}
+    <div className="container-fluid">
+      <div className="row">
+        {!isLoggedIn ? (
+          <>
+            <div className="col-md-4 d-flex align-items-center justify-content-center">
+              <Login onLogin={handleLogin} />
+            </div>
+            <div className="col-md-8 d-flex align-items-center justify-content-center">
+              <Register />
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="col-md-2">
+              <Sidebar 
+                channels={channels} 
+                onChannelClick={handleChannelClick} 
+                currentUser={currentUser}
+                selectedChannel={selectedChannel}
+              />
+            </div>
+            <div className="col-md-10">
+              <MessageArea 
+                messages={messages.filter(msg => msg.channel === selectedChannel)} 
+                selectedChannel={selectedChannel} 
+                setMessages={setMessages} 
+                currentUser={currentUser}
+              />
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 };

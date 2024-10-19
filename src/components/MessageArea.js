@@ -80,19 +80,21 @@ const MessageArea = ({ messages, selectedChannel, setMessages, currentUser }) =>
         ))}
         <div ref={messagesEndRef} />
       </div>
-      <input 
-        className='m-input'
-        type="text" 
-        value={newMessage} 
-        onChange={(e) => setNewMessage(e.target.value)} 
-        onKeyPress={(e) => {
-          if (e.key === 'Enter') {
-            handleSendMessage();
-          }
-        }} 
-        placeholder="Mesaj yaz..." 
-      />
-      <button className='submit' onClick={handleSendMessage}>Gönder</button>
+      <div className="message-input-container">
+        <input 
+          className='m-input'
+          type="text" 
+          value={newMessage} 
+          onChange={(e) => setNewMessage(e.target.value)} 
+          onKeyPress={(e) => {
+            if (e.key === 'Enter') {
+              handleSendMessage();
+            }
+          }} 
+          placeholder="Mesaj yaz..." 
+        />
+        <button className='submit' onClick={handleSendMessage}>Gönder</button>
+      </div>
     </div>
   );
 };

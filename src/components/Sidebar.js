@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import '../App.css'; // CSS dosyasını import ediyoruz
+import '../App.css';
 
-const Sidebar = ({ channels, onChannelClick, currentUser }) => {
+const Sidebar = ({ channels, onChannelClick, currentUser, selectedChannel }) => {
   const [connectedUsers, setConnectedUsers] = useState([]);
 
   useEffect(() => {
@@ -33,28 +33,32 @@ const Sidebar = ({ channels, onChannelClick, currentUser }) => {
   }, [currentUser]);
 
   return (
-    <div className="sidebar p-3 bg-dark text-white">
+    <div className="sidebar">
       <h2>Kanal Listesi</h2>
-      <ul className="list-group">
-        {channels.map((channel, index) => (
-          <li 
-            key={index} 
-            className="list-group-item list-group-item-action bg-secondary text-white" 
-            onClick={() => onChannelClick(channel)}
-          >
-            {channel}
-          </li>
-        ))}
-      </ul>
-      <h3 className="mt-4">Bağlı Kullanıcılar</h3>
-      <ul className="list-group">
-        {connectedUsers.map((user, index) => (
-          <li key={index} className="list-group-item bg-secondary text-white d-flex align-items-center">
-            <span className="online-indicator mt-1 mr-2"></span>
-            {user}
-          </li>
-        ))}
-      </ul>
+      <div className="channel-list">
+        <ul>
+          {channels.map((channel, index) => (
+            <li 
+              key={index} 
+              onClick={() => onChannelClick(channel)}
+              className={channel === selectedChannel ? 'active' : ''}
+            >
+              # {channel}
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div className="connected-users">
+        <h3>Bağlı Kullanıcılar</h3>
+        <ul>
+          {connectedUsers.map((user, index) => (
+            <li key={index}>
+              <span className="online-indicator"></span>
+              {user}
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 };

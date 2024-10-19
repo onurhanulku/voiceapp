@@ -13,10 +13,14 @@ body, html {
 
 .sidebar {
   background-color: #2f3136;
-  color: white;
+  color: #8e9297;
   padding: 20px;
+  height: 100%; /* 100vh yerine 100% kullanıyoruz */
+  min-height: 100vh; /* Minimum yükseklik olarak 100vh ayarlıyoruz */
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
-
 .message-area {
   flex: 1;
   background-color: #36393f;
@@ -27,14 +31,48 @@ body, html {
 .messages {
   height: 80%;
   max-height: 400px;
-  overflow-y: scroll;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #4a4d52 #36393f;
 }
 
 .m-input{
-  width: 90%;
+  width: calc(100% - 80px); /* Buton için yer bırakıyoruz */
+  background-color: #40444b;
+  border: none;
+  border-radius: 8px;
+  color: #dcddde;
+  padding: 10px 16px;
+  font-size: 16px;
+  margin-right: 10px;
+  transition: background-color 0.2s;
+}
+.m-input:focus {
+  outline: none;
+  background-color: #45494f;
+}
+
+.m-input::placeholder {
+  color: #72767d;
+}
+.message-input-container {
+  display: flex;
+  margin-top: 5px;
+  padding: 10px;
+  background-color: #36393f;
+  border-top: 1px solid #2f3136;
 }
 .message {
   margin-bottom: 10px;
+  margin-right :15px;
+}
+
+.submit:hover {
+  background-color: #677bc4;
+}
+
+.submit:active {
+  background-color: #5b6eae;
 }
 
 .logreg {
@@ -91,4 +129,83 @@ body, html {
   background-color: #2ecc71;
   border-radius: 50%;
   margin-right: 5px;
+}
+.messages::-webkit-scrollbar {
+  width: 8px;
+}
+
+.messages::-webkit-scrollbar-track {
+  background: #36393f;
+}
+
+.messages::-webkit-scrollbar-thumb {
+  background-color: #4a4d52;
+  border-radius: 4px;
+  border: 2px solid #36393f;
+}
+
+.messages::-webkit-scrollbar-thumb:hover {
+  background-color: #5a5d62;
+}
+.sidebar h2 {
+  color: #ffffff;
+  font-size: 16px;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #40444b;
+}
+
+.sidebar ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.sidebar li {
+  cursor: pointer;
+  padding: 5px 5px;
+  margin-bottom: 5px;
+  border-radius: 4px;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.sidebar li:hover {
+  background-color: #40444b;
+  color: #dcddde;
+}
+
+.sidebar li.active {
+  background-color: #40444b;
+  color: #ffffff;
+}
+
+.sidebar .connected-users h3 {
+  color: #ffffff;
+  font-size: 14px;
+  margin-top: 30px;
+  margin-bottom: 15px;
+}
+
+.sidebar .connected-users li {
+  display: flex;
+  align-items: center;
+}
+
+.online-indicator {
+  width: 8px;
+  height: 8px;
+  background-color: #43b581;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+.channel-list, .connected-users {
+  flex: 1;
+  overflow-y: auto;
+}
+@media (max-width: 768px) {
+  .sidebar {
+      height: auto;
+      min-height: auto;
+      max-height: 50vh; /* Mobilde maksimum yüksekliği sınırlıyoruz */
+  }
 }
