@@ -6,6 +6,7 @@ const avatars = ['avatar1.png', 'avatar2.png', 'avatar3.png', 'avatar4.png', 'av
 
 const Sidebar = ({ channels, onChannelClick, currentUser, selectedChannel, onLogout }) => {
   const [connectedUsers, setConnectedUsers] = useState([]);
+  const [userAvatars, setUserAvatars] = useState({});
   const [showDropdown, setShowDropdown] = useState(false);
   const [showAvatarModal, setShowAvatarModal] = useState(false);
   const [currentAvatar, setCurrentAvatar] = useState('avatar1.png');
@@ -21,8 +22,19 @@ const Sidebar = ({ channels, onChannelClick, currentUser, selectedChannel, onLog
     }
   }, [currentUser]);
 
+  const fetchAllAvatars = useCallback(async () => {
+    try {
+      const response = await axios.get('https://voiceapp.online/api/getAllUserAvatars');
+      console.log('Fetched avatars:', response.data);
+      setUserAvatars(response.data);
+    } catch (error) {
+      console.error('Error fetching all avatars:', error);
+    }
+  }, []);
+
   useEffect(() => {
     fetchAvatar();
+    fetchAllAvatars();
 
     wsRef.current = new WebSocket('wss://voiceapp.online');
 
@@ -51,7 +63,7 @@ const Sidebar = ({ channels, onChannelClick, currentUser, selectedChannel, onLog
         wsRef.current.close();
       }
     };
-  }, [currentUser, fetchAvatar]);
+  }, [currentUser, fetchAvatar, fetchAllAvatars]);
 
   const toggleDropdown = useCallback((e) => {
     e.stopPropagation();
@@ -80,14 +92,15 @@ const Sidebar = ({ channels, onChannelClick, currentUser, selectedChannel, onLog
       await axios.post('https://voiceapp.online/api/updateAvatar', { username: currentUser, avatar });
       setCurrentAvatar(avatar);
       setShowAvatarModal(false);
+      fetchAllAvatars(); // Tüm avatarları güncelle
     } catch (error) {
       console.error('Error updating avatar:', error);
     }
-  }, [currentUser]);
+  }, [currentUser, fetchAllAvatars]);
 
   return (
     <div className="sidebar">
-      <h2>Kanal Listesi</h2>
+      <h2>Kanal Listesi</h2 >
       <div className="channel-list">
         <ul>
           {channels.map((channel, index) => (
@@ -106,6 +119,11 @@ const Sidebar = ({ channels, onChannelClick, currentUser, selectedChannel, onLog
           {connectedUsers.map((user, index) => (
             <li key={index}> 
               <span className="online-indicator"></span>
+              <img 
+  src={`/avatars/${userAvatars[user] || 'avatar1.png'}`} 
+  alt={user} 
+  className="avatar-img-channel" 
+/>
               {user}
             </li>
           ))}

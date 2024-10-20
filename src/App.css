@@ -174,7 +174,6 @@ body, html {
 .sidebar li {
   cursor: pointer;
   padding: 5px 5px;
-  margin-bottom: 5px;
   border-radius: 4px;
   transition: background-color 0.2s, color 0.2s;
 }
@@ -233,7 +232,13 @@ body, html {
   object-fit: cover;
   border: 2px solid  #7289da;
 }
-
+.avatar-img-channel {
+  width: 25px;
+  margin-right: 6px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid  #7289da;
+}
 .user-avatar {
   width: 37px;
   height: 37px;
@@ -280,16 +285,16 @@ body, html {
 }
 
 .dropdownmenu {
-  position: absolute;
-  bottom: 40px;
-  right: 0;
   background-color: #18191c;
   border-radius: 4px;
-  padding:  10px;
+  bottom: 40px;
+  box-shadow: 0 0 10px #0003;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  padding: 5px;
+  font-size: 13px;
+  position: absolute;
+  right: 0;
 }
 
 .dropdownmenu div {
