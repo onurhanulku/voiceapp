@@ -20,6 +20,7 @@ body, html {
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+  position: relative; /* Eklenen satır */
 }
 .message-area {
   flex: 1;
@@ -213,6 +214,89 @@ body, html {
   font-weight:500;
   color:#bedfff;
 }
+.user-info {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  background-color: #292b2f;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10; /* Eklenen satır */
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  margin-right: 10px;
+}
+
+.avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  background-color: #7289da;
+  border-radius: 50%;
+}
+
+.user-details {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.username {
+  font-weight: bold;
+  color: #ffffff;
+}
+
+.connection-status {
+  font-size: 0.8em;
+  color: #b9bbbe;
+}
+
+.user-actions {
+  position: relative;
+}
+
+.dropdown-toggle {
+  background: none;
+  border: none;
+  color: #b9bbbe;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 5px; /* Eklenen satır */
+}
+
+.dropdownmenu {
+  position: absolute;
+  bottom: 100%;
+  right: 0;
+  background-color: #18191c;
+  border-radius: 4px;
+  padding: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  z-index: 20; /* Eklenen satır */
+  min-width: 150px; /* Eklenen satır */
+  font-size: 13px;
+}
+
+.dropdownmenu div {
+  padding: 5px;
+  cursor: pointer; /* Eklenen satır */
+  color: #b9bbbe; /* Eklenen satır */
+  transition: background-color 0.2s, color 0.2s; /* Eklenen satır */
+}
+
+.dropdownmenu div:last-child {
+  border-bottom: none;
+}
+
+.dropdownmenu div:hover {
+  background-color: #2f3136;
+  color: #ffffff; /* Eklenen satır */
+}
+
 @media (max-width: 768px) {
   .sidebar {
       height: auto;

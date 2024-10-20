@@ -36,7 +36,7 @@ const App = () => {
           </>
         ) : (
           <>
-            <div className="col-md-2">
+            <div className="col-md-2 p-0">
               <Sidebar 
                 channels={channels} 
                 onChannelClick={handleChannelClick} 
