@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useRef } from 'react';
-import axios from 'axios'; // Axios'u import edin
+import React, { useEffect, useState, useRef, useCallback } from 'react';
+import axios from 'axios';
 import '../App.css';
 
 const avatars = ['avatar1.png', 'avatar2.png', 'avatar3.png', 'avatar4.png', 'avatar5.png'];
@@ -10,27 +10,28 @@ const Sidebar = ({ channels, onChannelClick, currentUser, selectedChannel, onLog
   const [showAvatarModal, setShowAvatarModal] = useState(false);
   const [currentAvatar, setCurrentAvatar] = useState('avatar1.png');
   const dropdownRef = useRef(null);
+  const wsRef = useRef(null);
+
+  const fetchAvatar = useCallback(async () => {
+    try {
+      const response = await axios.get(`https://voiceapp.online/api/getUserAvatar?username=${currentUser}`);
+      setCurrentAvatar(response.data.avatar);
+    } catch (error) {
+      console.error('Error fetching avatar:', error);
+    }
+  }, [currentUser]);
 
   useEffect(() => {
-    const fetchAvatar = async () => {
-      try {
-        const response = await axios.get(`http://31.210.36.25:5000/api/getUserAvatar?username=${currentUser}`);
-        setCurrentAvatar(response.data.avatar);
-      } catch (error) {
-        console.error('Error fetching avatar:', error);
-      }
-    };
-
     fetchAvatar();
 
-    const ws = new WebSocket('ws://31.210.36.25:5000');
+    wsRef.current = new WebSocket('wss://voiceapp.online');
 
-    ws.onopen = () => {
+    wsRef.current.onopen = () => {
       console.log('WebSocket bağlantısı açıldı.');
-      ws.send(JSON.stringify({ type: 'login', username: currentUser }));
+      wsRef.current.send(JSON.stringify({ type: 'login', username: currentUser }));
     };
 
-    ws.onmessage = (event) => {
+    wsRef.current.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
         if (data.type === 'userList') {
@@ -41,19 +42,21 @@ const Sidebar = ({ channels, onChannelClick, currentUser, selectedChannel, onLog
       }
     };
 
-    ws.onerror = (error) => {
+    wsRef.current.onerror = (error) => {
       console.error("WebSocket hatası:", error);
     };
 
     return () => {
-      ws.close();
+      if (wsRef.current) {
+        wsRef.current.close();
+      }
     };
-  }, [currentUser]);
+  }, [currentUser, fetchAvatar]);
 
-  const toggleDropdown = (e) => {
+  const toggleDropdown = useCallback((e) => {
     e.stopPropagation();
-    setShowDropdown(!showDropdown);
-  };
+    setShowDropdown(prev => !prev);
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -68,19 +71,19 @@ const Sidebar = ({ channels, onChannelClick, currentUser, selectedChannel, onLog
     };
   }, []);
 
-  const handleAvatarClick = () => {
+  const handleAvatarClick = useCallback(() => {
     setShowAvatarModal(true);
-  };
+  }, []);
 
-  const handleAvatarSelect = async (avatar) => {
+  const handleAvatarSelect = useCallback(async (avatar) => {
     try {
-      await axios.post('http://31.210.36.25:5000/api/updateAvatar', { username: currentUser, avatar });
+      await axios.post('https://voiceapp.online/api/updateAvatar', { username: currentUser, avatar });
       setCurrentAvatar(avatar);
       setShowAvatarModal(false);
     } catch (error) {
       console.error('Error updating avatar:', error);
     }
-  };
+  }, [currentUser]);
 
   return (
     <div className="sidebar">
@@ -91,8 +94,7 @@ const Sidebar = ({ channels, onChannelClick, currentUser, selectedChannel, onLog
             <li 
               key={index} 
               onClick={() => onChannelClick(channel)}
-              className={channel === selectedChannel ? 'active' : ''}
-            >
+              className={channel === selectedChannel ? 'active' : ''} >
               # {channel}
             </li>
           ))}
@@ -102,7 +104,8 @@ const Sidebar = ({ channels, onChannelClick, currentUser, selectedChannel, onLog
         <h3>Bağlı Kullanıcılar</h3>
         <ul>
           {connectedUsers.map((user, index) => (
-            <li key={index}> <span className="online-indicator"></span>
+            <li key={index}> 
+              <span className="online-indicator"></span>
               {user}
             </li>
           ))}

@@ -10,7 +10,7 @@ const Register = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post('http://31.210.36.25:5000/api/register', { username, password });
+      const response = await axios.post('https://voiceapp.online/api/register', {username, password });
       setMessage(response.data.message);
     } catch (error) {
       if (error.response) {

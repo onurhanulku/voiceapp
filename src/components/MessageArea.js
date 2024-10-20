@@ -15,7 +15,7 @@ const MessageArea = ({ messages, selectedChannel, setMessages, currentUser }) =>
   }, [messages]);
 
   useEffect(() => {
-    const ws = new WebSocket('ws://31.210.36.25:5000');
+    const ws = new WebSocket('wss://voiceapp.online');
 
     ws.onopen = () => {
       console.log('WebSocket bağlantısı açıldı.');
