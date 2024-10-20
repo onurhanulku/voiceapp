@@ -131,12 +131,14 @@ body, html {
   margin-left: 5px; /* Mesajdan biraz boşluk */
 }
 .online-indicator {
-  display: inline-block;
+  position: absolute;
+  bottom: 0;
+  right: 0;
   width: 10px;
   height: 10px;
-  background-color: #2ecc71;
+  background-color: #43b581;
   border-radius: 50%;
-  margin-right: 5px;
+  border: 2px solid #292b2f;
 }
 .messages::-webkit-scrollbar {
   width: 8px;
@@ -223,13 +225,22 @@ body, html {
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: 10; /* Eklenen satır */
+}
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid  #7289da;
 }
 
 .user-avatar {
-  width: 32px;
-  height: 32px;
+  width: 37px;
+  height: 37px;
   margin-right: 10px;
+  cursor: pointer;
+  position: relative;
+  border-radius: 50%;
 }
 
 .avatar-placeholder {
@@ -265,27 +276,26 @@ body, html {
   color: #b9bbbe;
   font-size: 20px;
   cursor: pointer;
-  padding: 5px; /* Eklenen satır */
+  padding: 5px;
 }
 
 .dropdownmenu {
   position: absolute;
-  bottom: 100%;
+  bottom: 40px;
   right: 0;
   background-color: #18191c;
   border-radius: 4px;
-  padding: 10px;
+  padding:  10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-  z-index: 20; /* Eklenen satır */
-  min-width: 150px; /* Eklenen satır */
-  font-size: 13px;
 }
 
 .dropdownmenu div {
-  padding: 5px;
-  cursor: pointer; /* Eklenen satır */
-  color: #b9bbbe; /* Eklenen satır */
-  transition: background-color 0.2s, color 0.2s; /* Eklenen satır */
+  padding: 10px;
+  cursor: pointer;
+  transition: background-color 0.2s;
 }
 
 .dropdownmenu div:last-child {
@@ -293,8 +303,7 @@ body, html {
 }
 
 .dropdownmenu div:hover {
-  background-color: #2f3136;
-  color: #ffffff; /* Eklenen satır */
+  background-color: #292b2f;
 }
 
 @media (max-width: 768px) {
@@ -309,4 +318,46 @@ body, html {
   .message-area{
     height: auto;
   }
+}
+.avatar-modal {
+  position: absolute;
+  bottom: 60px;
+  left: 10px;
+  background-color: #36393f;
+  border-radius: 5px;
+  padding: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  max-width: 200px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+.avatar-option {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.avatar-option:hover {
+  transform: scale(1.1);
+}
+.avatar-modal ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.avatar-modal li {
+  margin: 10px;
+}
+
+.avatar-modal img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
 }
