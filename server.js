@@ -2,11 +2,21 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const mongoose = require('mongoose');
-const http = require('http'); // http modülünü içe aktar
-const wsServer = require('./wsServer'); // wsServer dosyasını içe aktar
+const https = require('https');
+const fs = require('fs');
+const path = require('path');
+const wsServer = require('./wsServer');
 
 const app = express();
-const PORT = 5000;
+const PORT = 443;
+
+// SSL sertifikası ve anahtarını yükleme
+const privateKey = fs.readFileSync('C:/certificates/voiceapp.online-key.pem', 'utf8');
+const certificate = fs.readFileSync('C:/certificates/voiceapp.online-crt.pem', 'utf8');
+const credentials = { key: privateKey, cert: certificate };
+
+// HTTPS sunucusunu oluştur
+const server = https.createServer(credentials, app);
 
 // MongoDB bağlantısı
 mongoose.connect('mongodb://localhost:27017/voiceapp')
@@ -56,7 +66,8 @@ app.post('/api/register', async (req, res) => {
     res.status(500).json({ message: 'Server error.' });
   }
 });
-//Avatar API
+
+// Avatar API
 app.post('/api/updateAvatar', async (req, res) => {
   const { username, avatar } = req.body;
   try {
@@ -77,13 +88,18 @@ app.get('/api/getUserAvatar', async (req, res) => {
   }
 });
 
-// HTTP sunucusunu oluştur
-const server = http.createServer(app);
+// React uygulamasının build klasörünü sunma
+app.use(express.static(path.join(__dirname, '../voiceapp/build')));
+
+// Tüm GET isteklerini React uygulamasına yönlendirme
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../voiceapp/build', 'index.html'));
+});
 
 // WebSocket sunucusunu başlat
-wsServer(server); // WebSocket sunucusunu başlat
+wsServer(server);
 
-// Sunucuyu başlat
+// HTTPS sunucusunu başlat
 server.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`HTTPS Server is running on port ${PORT}`);
 });
