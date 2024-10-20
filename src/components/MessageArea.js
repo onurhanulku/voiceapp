@@ -74,7 +74,7 @@ const MessageArea = ({ messages, selectedChannel, setMessages, currentUser }) =>
       <div className="messages">
         {messages.filter(msg => msg.channel === selectedChannel).map((msg, index) => (
           <div key={index} className="message">
-            <span>{msg.username}: {msg.text}</span>
+            <span className='userlabel'>{msg.username}: </span><span>{msg.text}</span>
             <span className="timestamp" style={{ float: 'right' }}>{msg.timestamp}</span>
           </div>
         ))}
