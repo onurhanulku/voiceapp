@@ -20,6 +20,7 @@ app.use(bodyParser.json());
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true },
   password: { type: String, required: true },
+  avatar: { type: String, default: 'avatar1.png' }
 });
 
 const User = mongoose.model('User', userSchema);
@@ -53,6 +54,26 @@ app.post('/api/register', async (req, res) => {
     res.status(201).json({ message: 'Registration successful!', user: newUser.username });
   } catch (error) {
     res.status(500).json({ message: 'Server error.' });
+  }
+});
+//Avatar API
+app.post('/api/updateAvatar', async (req, res) => {
+  const { username, avatar } = req.body;
+  try {
+    await User.findOneAndUpdate({ username }, { avatar });
+    res.json({ message: 'Avatar updated successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating avatar' });
+  }
+});
+
+app.get('/api/getUserAvatar', async (req, res) => {
+  const { username } = req.query;
+  try {
+    const user = await User.findOne({ username });
+    res.json({ avatar: user.avatar });
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching avatar' });
   }
 });
 

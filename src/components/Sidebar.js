@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
+import axios from 'axios'; // Axios'u import edin
 import '../App.css';
 
 const avatars = ['avatar1.png', 'avatar2.png', 'avatar3.png', 'avatar4.png', 'avatar5.png'];
@@ -7,10 +8,21 @@ const Sidebar = ({ channels, onChannelClick, currentUser, selectedChannel, onLog
   const [connectedUsers, setConnectedUsers] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [showAvatarModal, setShowAvatarModal] = useState(false);
-  const [currentAvatar, setCurrentAvatar] = useState(localStorage.getItem(`avatar_${currentUser}`) || avatars[0]);
+  const [currentAvatar, setCurrentAvatar] = useState('avatar1.png');
   const dropdownRef = useRef(null);
 
   useEffect(() => {
+    const fetchAvatar = async () => {
+      try {
+        const response = await axios.get(`http://31.210.36.25:5000/api/getUserAvatar?username=${currentUser}`);
+        setCurrentAvatar(response.data.avatar);
+      } catch (error) {
+        console.error('Error fetching avatar:', error);
+      }
+    };
+
+    fetchAvatar();
+
     const ws = new WebSocket('ws://31.210.36.25:5000');
 
     ws.onopen = () => {
@@ -55,15 +67,21 @@ const Sidebar = ({ channels, onChannelClick, currentUser, selectedChannel, onLog
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+
   const handleAvatarClick = () => {
     setShowAvatarModal(true);
   };
 
-  const handleAvatarSelect = (avatar) => {
-    setCurrentAvatar(avatar);
-    localStorage.setItem(`avatar_${currentUser}`, avatar);
-    setShowAvatarModal(false);
+  const handleAvatarSelect = async (avatar) => {
+    try {
+      await axios.post('http://31.210.36.25:5000/api/updateAvatar', { username: currentUser, avatar });
+      setCurrentAvatar(avatar);
+      setShowAvatarModal(false);
+    } catch (error) {
+      console.error('Error updating avatar:', error);
+    }
   };
+
   return (
     <div className="sidebar">
       <h2>Kanal Listesi</h2>
@@ -84,26 +102,25 @@ const Sidebar = ({ channels, onChannelClick, currentUser, selectedChannel, onLog
         <h3>Bağlı Kullanıcılar</h3>
         <ul>
           {connectedUsers.map((user, index) => (
-            <li key={index}>
-              <span className="online-indicator"></span>
+            <li key={index}> <span className="online-indicator"></span>
               {user}
             </li>
           ))}
         </ul>
       </div>
       <div className="user-info">
-  <div className="user-avatar" onClick={() => setShowAvatarModal(!showAvatarModal)}>
-    <img src={`/avatars/${currentAvatar}`} alt="User Avatar" className="avatar-img" />
-    <span className="online-indicator"></span>
-  </div>
-  <div className="user-details">
-    <span className="username">{currentUser}</span>
-    <span className="connection-status">Çevrimiçi</span>
-  </div>
-  <div className="user-actions" ref={dropdownRef}>
-    <button onClick={toggleDropdown} className="dropdown-toggle">⋮</button>
-  </div>
-</div>
+        <div className="user-avatar" onClick={handleAvatarClick}>
+          <img src={`/avatars/${currentAvatar}`} alt="User Avatar" className="avatar-img" />
+          <span className="online-indicator"></span>
+        </div>
+        <div className="user-details">
+          <span className="username">{currentUser}</span>
+          <span className="connection-status">Çevrimiçi</span>
+        </div>
+        <div className="user-actions" ref={dropdownRef}>
+          <button onClick={toggleDropdown} className="dropdown-toggle">⋮</button>
+        </div>
+      </div>
       {showAvatarModal && (
         <div className="avatar-modal">
           {avatars.map((avatar, index) => (
@@ -119,7 +136,7 @@ const Sidebar = ({ channels, onChannelClick, currentUser, selectedChannel, onLog
       )}
       {showDropdown && (
         <div className="dropdownmenu">
-          <div onClick={() => setShowAvatarModal(true)}>Avatar Değiştir</div>
+          <div onClick={handleAvatarClick}>Avatar Değiştir</div>
           <div onClick={onLogout}>Çıkış</div>
         </div>
       )}
