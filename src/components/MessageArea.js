@@ -32,7 +32,7 @@ const MessageArea = ({ messages, selectedChannel, onSendMessage, currentUser }) 
         <div ref={messagesEndRef} />
       </div>
       <div className="message-input-container">
-        <input 
+         <input 
           className='m-input'
           type="text" 
           value={newMessage} 

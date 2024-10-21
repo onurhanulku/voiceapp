@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Sidebar from './components/Sidebar';
 import MessageArea from './components/MessageArea';
 import Login from './components/Login';
@@ -11,10 +11,16 @@ const App = () => {
   const [messages, setMessages] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentUser, setCurrentUser] = useState('');
-  const [socket, setSocket] = useState(null);
   const [connectedUsers, setConnectedUsers] = useState([]);
+  
+  const socketRef = useRef(null);
+  const reconnectTimeoutRef = useRef(null);
 
   const connectWebSocket = useCallback(() => {
+    if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+      return;
+    }
+
     const ws = new WebSocket('wss://voiceapp.online');
 
     ws.onopen = () => {
@@ -37,17 +43,41 @@ const App = () => {
       console.error('WebSocket hatası:', error);
     };
 
-    setSocket(ws);
-
-    return () => {
-      ws.close();
+    ws.onclose = () => {
+      console.log('WebSocket bağlantısı kapandı. Yeniden bağlanılıyor...');
+      reconnectTimeoutRef.current = setTimeout(connectWebSocket, 3000);
     };
+
+    socketRef.current = ws;
   }, [currentUser]);
 
   useEffect(() => {
     if (isLoggedIn) {
       connectWebSocket();
     }
+
+    const pingInterval = setInterval(() => {
+      if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+        socketRef.current.send(JSON.stringify({ type: 'ping' }));
+      }
+    }, 30000); // Her 30 saniyede bir ping gönder
+
+    const handleVisibilityChange = () => {
+      if (!document.hidden && isLoggedIn) {
+        connectWebSocket();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      clearInterval(pingInterval);
+      clearTimeout(reconnectTimeoutRef.current);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      if (socketRef.current) {
+        socketRef.current.close();
+      }
+    };
   }, [isLoggedIn, connectWebSocket]);
 
   const handleLogin = (username) => {
@@ -56,12 +86,20 @@ const App = () => {
     setIsLoggedIn(true);
   };
 
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setCurrentUser('');
+    if (socketRef.current) {
+      socketRef.current.close();
+    }
+  };
+
   const handleChannelClick = (channel) => {
     setSelectedChannel(channel);
   };
 
   const handleSendMessage = (message) => {
-    if (socket && socket.readyState === WebSocket.OPEN) {
+    if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
       const timestamp = new Date().toLocaleTimeString();
       const messageData = { 
         type: 'message',
@@ -70,7 +108,7 @@ const App = () => {
         username: currentUser, 
         timestamp
       };
-      socket.send(JSON.stringify(messageData));
+      socketRef.current.send(JSON.stringify(messageData));
     }
   };
 
@@ -95,12 +133,13 @@ const App = () => {
                 currentUser={currentUser}
                 selectedChannel={selectedChannel}
                 connectedUsers={connectedUsers}
+                onLogout={handleLogout}
               />
             </div>
             <div className="col-md-10">
               <MessageArea 
                 messages={messages.filter(msg => msg.channel === selectedChannel)} 
-                selectedChannel={ selectedChannel} 
+                selectedChannel={selectedChannel} 
                 onSendMessage={handleSendMessage} 
                 currentUser={currentUser}
               />
