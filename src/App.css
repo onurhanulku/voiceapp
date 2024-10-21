@@ -31,6 +31,9 @@ body, html {
   flex-direction: column;
   height: 100vh; /* Tüm ekran yüksekliğini kaplar */
 }
+.message-area h2 {
+ padding-top: 15px;
+}
 
 .messages {
   overflow-y: auto;
@@ -322,7 +325,20 @@ body, html {
   }
   .message-area{
     height: auto;
+    display: contents;
   }
+  .user-info {
+    position: fixed;
+}
+.dropdownmenu {
+  bottom: 62px;
+  position: fixed;
+}
+.avatar-modal {
+  bottom: 64px !important;
+  left: 4px !important;
+  position: fixed !important;
+}
 }
 .avatar-modal {
   position: absolute;
