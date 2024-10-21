@@ -1,9 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-const MessageArea = ({ messages, selectedChannel, setMessages, currentUser }) => {
+const MessageArea = ({ messages, selectedChannel, onSendMessage, currentUser }) => {
   const [newMessage, setNewMessage] = useState('');
-  const [socket, setSocket] = useState(null);
-  const socketRef = useRef(null);
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -14,57 +12,10 @@ const MessageArea = ({ messages, selectedChannel, setMessages, currentUser }) =>
     scrollToBottom();
   }, [messages]);
 
-  useEffect(() => {
-    const ws = new WebSocket('wss://voiceapp.online');
-
-    ws.onopen = () => {
-      console.log('WebSocket bağlantısı açıldı.');
-      ws.send(JSON.stringify({ type: 'login', username: currentUser }));
-    };
-
-    ws.onmessage = (event) => {
-      console.log('Gelen veri:', event.data);
-      
-      try {
-        const data = JSON.parse(event.data);
-        if (data.type === 'message') {
-          setMessages(prevMessages => [...prevMessages, data]);
-        }
-      } catch (error) {
-        console.error("Mesaj ayrıştırma hatası:", error);
-      }
-    };
-
-    ws.onerror = (error) => {
-      console.error('WebSocket hatası:', error);
-    };
-
-    setSocket(ws);
-    socketRef.current = ws;
-
-    return () => {
-      ws.close();
-    };
-  }, [currentUser, setMessages]);
-
   const handleSendMessage = () => {
-    if (newMessage && socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
-      const timestamp = new Date().toLocaleTimeString();
-      const message = { 
-        type: 'message',
-        channel: selectedChannel, 
-        text: newMessage, 
-        username: currentUser, 
-        timestamp
-      };
-      try {
-        socketRef.current.send(JSON.stringify(message));
-        setNewMessage('');
-      } catch (error) {
-        console.error('Mesaj gönderme hatası:', error);
-      }
-    } else {
-      console.error('WebSocket bağlantısı kapalı veya mesaj boş!');
+    if (newMessage) {
+      onSendMessage(newMessage);
+      setNewMessage('');
     }
   };
 
@@ -72,7 +23,7 @@ const MessageArea = ({ messages, selectedChannel, setMessages, currentUser }) =>
     <div className="message-area">
       <h2>{selectedChannel}</h2>
       <div className="messages">
-        {messages.filter(msg => msg.channel === selectedChannel).map((msg, index) => (
+        {messages.map((msg, index) => (
           <div key={index} className="message">
             <span className='userlabel'>{msg.username}: </span><span>{msg.text}</span>
             <span className="timestamp" style={{ float: 'right' }}>{msg.timestamp}</span>

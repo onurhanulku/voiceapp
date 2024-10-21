@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Sidebar from './components/Sidebar';
 import MessageArea from './components/MessageArea';
 import Login from './components/Login';
@@ -11,6 +11,44 @@ const App = () => {
   const [messages, setMessages] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentUser, setCurrentUser] = useState('');
+  const [socket, setSocket] = useState(null);
+  const [connectedUsers, setConnectedUsers] = useState([]);
+
+  const connectWebSocket = useCallback(() => {
+    const ws = new WebSocket('wss://voiceapp.online');
+
+    ws.onopen = () => {
+      console.log('WebSocket bağlantısı açıldı.');
+      if (currentUser) {
+        ws.send(JSON.stringify({ type: 'login', username: currentUser }));
+      }
+    };
+
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if (data.type === 'message') {
+        setMessages(prevMessages => [...prevMessages, data]);
+      } else if (data.type === 'userList') {
+        setConnectedUsers(data.users);
+      }
+    };
+
+    ws.onerror = (error) => {
+      console.error('WebSocket hatası:', error);
+    };
+
+    setSocket(ws);
+
+    return () => {
+      ws.close();
+    };
+  }, [currentUser]);
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      connectWebSocket();
+    }
+  }, [isLoggedIn, connectWebSocket]);
 
   const handleLogin = (username) => {
     console.log(`Giriş yapıldı: ${username}`);
@@ -20,6 +58,20 @@ const App = () => {
 
   const handleChannelClick = (channel) => {
     setSelectedChannel(channel);
+  };
+
+  const handleSendMessage = (message) => {
+    if (socket && socket.readyState === WebSocket.OPEN) {
+      const timestamp = new Date().toLocaleTimeString();
+      const messageData = { 
+        type: 'message',
+        channel: selectedChannel, 
+        text: message, 
+        username: currentUser, 
+        timestamp
+      };
+      socket.send(JSON.stringify(messageData));
+    }
   };
 
   return (
@@ -42,13 +94,14 @@ const App = () => {
                 onChannelClick={handleChannelClick} 
                 currentUser={currentUser}
                 selectedChannel={selectedChannel}
+                connectedUsers={connectedUsers}
               />
             </div>
             <div className="col-md-10">
               <MessageArea 
                 messages={messages.filter(msg => msg.channel === selectedChannel)} 
-                selectedChannel={selectedChannel} 
-                setMessages={setMessages} 
+                selectedChannel={ selectedChannel} 
+                onSendMessage={handleSendMessage} 
                 currentUser={currentUser}
               />
             </div>
