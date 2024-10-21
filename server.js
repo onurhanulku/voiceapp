@@ -88,6 +88,18 @@ app.get('/api/getUserAvatar', async (req, res) => {
   }
 });
 
+app.get('/api/getAllUserAvatars', async (req, res) => {
+  try {
+    const users = await User.find({}, 'username avatar');
+    const avatars = Object.fromEntries(users.map(user => [user.username, user.avatar || 'avatar1.png']));
+    console.log('Sending avatars:', avatars);
+    res.json(avatars);
+  } catch (error) {
+    console.error('Error fetching avatars:', error);
+    res.status(500).json({ message: 'Error fetching avatars' });
+  }
+});
+
 // React uygulamasının build klasörünü sunma
 app.use(express.static(path.join(__dirname, '../voiceapp/build')));
 
