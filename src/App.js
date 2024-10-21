@@ -142,6 +142,7 @@ const App = () => {
                 selectedChannel={selectedChannel} 
                 onSendMessage={handleSendMessage} 
                 currentUser={currentUser}
+                setMessages={setMessages} // setMessages prop'unu ekledik
               />
             </div>
           </>
