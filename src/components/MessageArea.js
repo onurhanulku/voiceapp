@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import EmojiPicker from 'emoji-picker-react';
 
-const MessageArea = ({ messages, selectedChannel, setMessages, currentUser }) => {
+const MessageArea = ({ messages, selectedChannel, currentUser  }) => {
   const [newMessage, setNewMessage] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const socketRef = useRef(null);
@@ -20,7 +20,7 @@ const MessageArea = ({ messages, selectedChannel, setMessages, currentUser }) =>
 
     ws.onopen = () => {
       console.log('WebSocket bağlantısı açıldı.');
-      ws.send(JSON.stringify({ type: 'login', username: currentUser }));
+      ws.send(JSON.stringify({ type: 'login', username: currentUser  }));
     };
 
     ws.onmessage = (event) => {
@@ -29,7 +29,7 @@ const MessageArea = ({ messages, selectedChannel, setMessages, currentUser }) =>
       try {
         const data = JSON.parse(event.data);
         if (data.type === 'message') {
-          setMessages(prevMessages => [...prevMessages, data]);
+          // Mesajı doğrudan eklemiyoruz, App bileşeni yönetecek
         }
       } catch (error) {
         console.error("Mesaj ayrıştırma hatası:", error);
@@ -45,7 +45,7 @@ const MessageArea = ({ messages, selectedChannel, setMessages, currentUser }) =>
     return () => {
       ws.close();
     };
-  }, [currentUser, setMessages]);
+  }, [currentUser ]);
 
   const handleSendMessage = () => {
     if (newMessage && socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
@@ -54,7 +54,7 @@ const MessageArea = ({ messages, selectedChannel, setMessages, currentUser }) =>
         type: 'message',
         channel: selectedChannel, 
         text: newMessage, 
-        username: currentUser, 
+        username: currentUser , 
         timestamp
       };
       try {
@@ -76,7 +76,7 @@ const MessageArea = ({ messages, selectedChannel, setMessages, currentUser }) =>
     <div className="message-area">
       <h2>{selectedChannel}</h2>
       <div className="messages">
-        {messages.filter(msg => msg.channel === selectedChannel).map((msg, index) => (
+        {messages.map((msg, index) => (
           <div key={index} className="message">
             <span className='userlabel'>{msg.username}: </span><span>{msg.text}</span>
             <span className="timestamp" style={{ float: 'right' }}>{msg.timestamp}</span>
